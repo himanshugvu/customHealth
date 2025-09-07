@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/demo}
+
+  config:
+    import: optional:classpath:app-health.yml
+
+kafka:
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+
+external:
+  service:
+    url: ${EXTERNAL_URL:http://localhost:8090/status/200}

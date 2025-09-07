@@ -1,0 +1,18 @@
+app:
+  health:
+    enabled: true
+    startupLog: true
+    db:
+      enabled: true
+      validationQuery: "SELECT 1"
+    mongodb:
+      enabled: true
+    kafka:
+      enabled: true
+      adminClientBean: kafkaAdminClient
+    external:
+      services:
+        - name: httpbin
+          enabled: true
+          restClientBean: myRestClient
+          urlBean: externalServiceUrl
