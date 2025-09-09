@@ -184,7 +184,7 @@ public record EnterpriseHealthProperties(
         // Validate at least one health check is enabled
         boolean hasEnabledCheck = database.enabled || mongodb.enabled || 
                                 kafka.enabled || 
-                                (external.services != null && external.services.stream().anyMatch(ServiceConfig::enabled));
+                                (external.services != null && external.services.stream().anyMatch(ExternalConfig.ServiceConfig::enabled));
         
         if (!hasEnabledCheck) {
             throw new IllegalStateException("At least one health check must be enabled when app.health.enabled=true");

@@ -1,24 +1,25 @@
 package com.example.health.health;
 
 import com.example.health.config.AppHealthProperties;
+import com.example.health.core.AsyncHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.Duration;
 
-public final class MongoHealthIndicator implements HealthIndicator {
+public final class MongoHealthIndicator extends AsyncHealthIndicator {
 
     private final MongoTemplate mongoTemplate;
     private final AppHealthProperties properties;
 
     public MongoHealthIndicator(MongoTemplate mongoTemplate, AppHealthProperties properties) {
+        super(Duration.ofSeconds(3), "mongodb"); // 3 second timeout for MongoDB check
         this.mongoTemplate = mongoTemplate;
         this.properties = properties;
     }
 
     @Override
-    public Health health() {
+    protected Health doHealthCheck() {
         long started = System.nanoTime();
         try {
             var result = mongoTemplate.getDb().runCommand(org.bson.Document.parse("{ping: 1}"));

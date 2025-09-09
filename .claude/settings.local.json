@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(docker-compose up:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(taskkill:*)",
+      "Bash(mvn:*)"
     ],
     "deny": [],
     "ask": []

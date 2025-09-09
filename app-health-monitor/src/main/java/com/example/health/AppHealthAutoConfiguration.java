@@ -117,7 +117,15 @@ public class AppHealthAutoConfiguration {
                                                 AppHealthProperties properties) {
         return args -> {
             if (Boolean.TRUE.equals(properties.getStartupLog())) {
-                logger.logOnce(internalComposite);
+                // Execute health logging asynchronously to not slow down application startup
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    try {
+                        logger.logOnce(internalComposite);
+                    } catch (Exception e) {
+                        org.slf4j.LoggerFactory.getLogger(AppHealthAutoConfiguration.class)
+                            .warn("Failed to execute startup health logging", e);
+                    }
+                });
             }
         };
     }

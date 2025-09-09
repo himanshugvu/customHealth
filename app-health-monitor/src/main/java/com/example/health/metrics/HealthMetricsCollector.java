@@ -61,9 +61,9 @@ public final class HealthMetricsCollector {
                 .description("Overall health check execution latency")
                 .register(meterRegistry);
                 
-        this.activeChecks = Gauge.builder("health.checks.active")
+        this.activeChecks = Gauge.builder("health.checks.active", checkMetrics, map -> map.size())
                 .description("Number of currently active health check types")
-                .register(meterRegistry, checkMetrics, ConcurrentHashMap::size);
+                .register(meterRegistry);
                 
         this.cacheHits = Counter.builder("health.cache.hits")
                 .description("Number of health check cache hits")
@@ -105,11 +105,19 @@ public final class HealthMetricsCollector {
      * Records cache hit/miss statistics.
      */
     public void recordCacheHit(String checkName) {
-        cacheHits.increment(Tags.of("check", checkName));
+        Counter.builder("health.cache.hits")
+                .description("Number of health check cache hits")
+                .tags("check", checkName)
+                .register(meterRegistry)
+                .increment();
     }
 
     public void recordCacheMiss(String checkName) {
-        cacheMisses.increment(Tags.of("check", checkName));
+        Counter.builder("health.cache.misses")
+                .description("Number of health check cache misses")
+                .tags("check", checkName)
+                .register(meterRegistry)
+                .increment();
     }
 
     /**
@@ -220,10 +228,10 @@ public final class HealthMetricsCollector {
                     .tags(tags)
                     .register(meterRegistry);
                     
-            this.currentStatus = Gauge.builder("health.check.status")
+            this.currentStatus = Gauge.builder("health.check.status", lastStatusValue, value -> value.get())
                     .description("Current status of health check (1=UP, 0.5=DEGRADED, 0=DOWN)")
                     .tags(tags)
-                    .register(meterRegistry, lastStatusValue, AtomicLong::get);
+                    .register(meterRegistry);
         }
 
         void record(HealthCheckResult result) {

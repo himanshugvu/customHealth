@@ -1,13 +1,13 @@
 package com.example.health.health;
 
+import com.example.health.core.AsyncHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
 import java.time.Duration;
 
-public final class ExternalServiceHealthIndicator implements HealthIndicator {
+public final class ExternalServiceHealthIndicator extends AsyncHealthIndicator {
 
     private final String name;
     private final RestClient restClient;
@@ -15,6 +15,7 @@ public final class ExternalServiceHealthIndicator implements HealthIndicator {
     private final String servicePath;
 
     public ExternalServiceHealthIndicator(String name, RestClient restClient, URI uri) {
+        super(Duration.ofSeconds(5), "external"); // 5 second timeout for external service check
         this.name = name;
         this.restClient = restClient;
         this.uri = uri;
@@ -26,7 +27,7 @@ public final class ExternalServiceHealthIndicator implements HealthIndicator {
     }
 
     @Override
-    public Health health() {
+    protected Health doHealthCheck() {
         long started = System.nanoTime();
         try {
             var response = restClient.head()

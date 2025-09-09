@@ -205,7 +205,7 @@ public final class ExternalServiceHealthStrategy implements HealthCheckStrategy 
 
     // Authentication Strategy Pattern
     public interface AuthenticationStrategy {
-        void authenticate(RestClient.RequestHeadersUriSpec<?> requestSpec);
+        void authenticate(RestClient.RequestHeadersSpec<?> requestSpec);
         
         static AuthenticationStrategy none() {
             return requestSpec -> {}; // No-op
