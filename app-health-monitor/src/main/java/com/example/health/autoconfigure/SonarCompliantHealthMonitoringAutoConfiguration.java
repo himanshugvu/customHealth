@@ -7,7 +7,7 @@ import com.example.health.service.OptimizedHealthCheckOrchestrator;
 import com.example.health.service.StartupHealthReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
+import com.example.health.registry.HealthCheckRegistry;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,29 +49,24 @@ public class SonarCompliantHealthMonitoringAutoConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(SonarCompliantHealthMonitoringAutoConfiguration.class);
     
     /**
-     * Creates the optimized health check orchestrator with proper configuration.
+     * Creates the registry-based health check orchestrator with proper configuration.
      */
     @Bean(destroyMethod = "close")
+    @Order(6000) // Create after registry finalization
     public OptimizedHealthCheckOrchestrator healthCheckOrchestrator(
-            ObjectProvider<HealthChecker> healthCheckersProvider,
+            HealthCheckRegistry registry,
             ValidatedHealthMonitoringProperties properties) {
         
-        // Defensive programming: Get ordered list safely
-        List<HealthChecker> healthCheckers = healthCheckersProvider.orderedStream()
-                .collect(java.util.stream.Collectors.toList());
+        // Get health checkers from registry instead of ObjectProvider
+        List<HealthChecker> healthCheckers = registry.getAllHealthCheckers();
         
-        // Security: Validate input
-        if (healthCheckers == null) {
-            healthCheckers = Collections.emptyList();
-        }
-        
-        logger.info("Initializing optimized health check orchestrator with {} health checkers", 
+        logger.info("Initializing registry-based health check orchestrator with {} health checkers from registry", 
                    healthCheckers.size());
         
         // Debug logging for configuration transparency
         if (logger.isDebugEnabled()) {
             healthCheckers.forEach(checker -> 
-                logger.debug("Registered health checker: {} (type: {}, enabled: {})", 
+                logger.debug("Using registered health checker: {} (type: {}, enabled: {})", 
                            checker.getComponentName(), checker.getComponentType(), checker.isEnabled()));
         }
         
@@ -82,7 +77,7 @@ public class SonarCompliantHealthMonitoringAutoConfiguration {
                 properties.getMaxConcurrentChecks()
             );
         } catch (Exception e) {
-            logger.error("Failed to create health check orchestrator", e);
+            logger.error("Failed to create registry-based health check orchestrator", e);
             throw new IllegalStateException("Health monitoring initialization failed", e);
         }
     }
