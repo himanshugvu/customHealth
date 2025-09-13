@@ -1,7 +1,7 @@
 package com.example.health.autoconfigure;
 
 import com.example.health.checkers.KafkaHealthChecker;
-import com.example.health.config.HealthMonitoringProperties;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
 import com.example.health.core.HealthChecker;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @ConditionalOnClass(AdminClient.class)
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class EnhancedKafkaHealthAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(EnhancedKafkaHealthAutoConfiguration.class);
@@ -34,10 +34,10 @@ public class EnhancedKafkaHealthAutoConfiguration {
      * Creates a Kafka health checker when AdminClient is available.
      */
     @Bean
-    @ConditionalOnProperty(prefix = "app.health.monitoring.kafka", name = "enabled", havingValue = "true")
-    public HealthChecker kafkaHealthChecker(BeanFactory beanFactory, HealthMonitoringProperties properties) {
+    @ConditionalOnProperty(prefix = "app.health.kafka", name = "enabled", havingValue = "true")
+    public HealthChecker kafkaHealthChecker(BeanFactory beanFactory, ValidatedHealthMonitoringProperties properties) {
         
-        HealthMonitoringProperties.KafkaConfig kafkaConfig = properties.getKafka();
+        ValidatedHealthMonitoringProperties.KafkaConfig kafkaConfig = properties.getKafka();
         
         try {
             // Resolve AdminClient bean
@@ -64,7 +64,7 @@ public class EnhancedKafkaHealthAutoConfiguration {
     /**
      * Resolves the AdminClient bean using the configured bean name.
      */
-    private AdminClient resolveAdminClientBean(BeanFactory beanFactory, HealthMonitoringProperties.KafkaConfig config) {
+    private AdminClient resolveAdminClientBean(BeanFactory beanFactory, ValidatedHealthMonitoringProperties.KafkaConfig config) {
         String beanName = config.getAdminClientBeanName();
         
         if (beanName == null || beanName.trim().isEmpty()) {
@@ -78,7 +78,7 @@ public class EnhancedKafkaHealthAutoConfiguration {
     /**
      * Determines an appropriate component name for the health checker.
      */
-    private String determineComponentName(HealthMonitoringProperties.KafkaConfig config) {
+    private String determineComponentName(ValidatedHealthMonitoringProperties.KafkaConfig config) {
         String beanName = config.getAdminClientBeanName();
         
         if (beanName != null && !beanName.trim().isEmpty()) {

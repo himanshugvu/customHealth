@@ -43,7 +43,7 @@ import java.util.List;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(ValidatedHealthMonitoringProperties.class)
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SonarCompliantHealthMonitoringAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(SonarCompliantHealthMonitoringAutoConfiguration.class);
@@ -138,7 +138,7 @@ public class SonarCompliantHealthMonitoringAutoConfiguration {
      */
     @Bean
     @Order(1000) // Run after other initialization
-    @ConditionalOnProperty(prefix = "app.health.monitoring", name = "startupLogging", 
+    @ConditionalOnProperty(prefix = "app.health", name = "startupLogging", 
                           havingValue = "true", matchIfMissing = true)
     public ApplicationRunner startupHealthCheckRunner(StartupHealthReporter reporter) {
         

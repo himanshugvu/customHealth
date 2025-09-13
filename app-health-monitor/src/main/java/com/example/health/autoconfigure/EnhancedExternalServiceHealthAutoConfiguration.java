@@ -1,7 +1,7 @@
 package com.example.health.autoconfigure;
 
 import com.example.health.checkers.ExternalServiceHealthChecker;
-import com.example.health.config.HealthMonitoringProperties;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
 import com.example.health.core.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class EnhancedExternalServiceHealthAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(EnhancedExternalServiceHealthAutoConfiguration.class);
@@ -38,12 +38,12 @@ public class EnhancedExternalServiceHealthAutoConfiguration {
      */
     @Bean
     public List<HealthChecker> externalServiceHealthCheckers(BeanFactory beanFactory, 
-                                                           HealthMonitoringProperties properties,
+                                                           ValidatedHealthMonitoringProperties properties,
                                                            ConversionService conversionService) {
         
         List<HealthChecker> healthCheckers = new ArrayList<>();
         
-        for (HealthMonitoringProperties.ExternalServiceConfig serviceConfig : properties.getExternalServices()) {
+        for (ValidatedHealthMonitoringProperties.ExternalServiceConfig serviceConfig : properties.getExternalServices()) {
             if (!serviceConfig.isEnabled()) {
                 logger.debug("Skipping disabled external service: {}", serviceConfig.getName());
                 continue;
@@ -75,7 +75,7 @@ public class EnhancedExternalServiceHealthAutoConfiguration {
      * Creates a single external service health checker.
      */
     private HealthChecker createExternalServiceHealthChecker(BeanFactory beanFactory,
-                                                           HealthMonitoringProperties.ExternalServiceConfig config,
+                                                           ValidatedHealthMonitoringProperties.ExternalServiceConfig config,
                                                            ConversionService conversionService) {
         
         // Resolve RestClient bean
@@ -91,7 +91,7 @@ public class EnhancedExternalServiceHealthAutoConfiguration {
      * Resolves the RestClient bean for the service.
      */
     private RestClient resolveRestClientBean(BeanFactory beanFactory, 
-                                           HealthMonitoringProperties.ExternalServiceConfig config) {
+                                           ValidatedHealthMonitoringProperties.ExternalServiceConfig config) {
         try {
             return beanFactory.getBean(config.getRestClientBeanName(), RestClient.class);
         } catch (Exception e) {
@@ -105,7 +105,7 @@ public class EnhancedExternalServiceHealthAutoConfiguration {
      * Resolves and converts the service URI from the configured bean.
      */
     private URI resolveServiceUri(BeanFactory beanFactory, 
-                                HealthMonitoringProperties.ExternalServiceConfig config,
+                                ValidatedHealthMonitoringProperties.ExternalServiceConfig config,
                                 ConversionService conversionService) {
         try {
             Object urlBean = beanFactory.getBean(config.getUrlBeanName());

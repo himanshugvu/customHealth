@@ -1,7 +1,7 @@
 package com.example.health.autoconfigure;
 
-import com.example.health.checkers.MongoHealthChecker;
-import com.example.health.config.HealthMonitoringProperties;
+import com.example.health.checkers.SecureMongoHealthChecker;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
 import com.example.health.core.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
  */
 @AutoConfiguration
 @ConditionalOnClass(MongoTemplate.class)
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class EnhancedMongoHealthAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(EnhancedMongoHealthAutoConfiguration.class);
@@ -35,10 +35,10 @@ public class EnhancedMongoHealthAutoConfiguration {
      */
     @Bean
     @ConditionalOnBean(MongoTemplate.class)
-    @ConditionalOnProperty(prefix = "app.health.monitoring.mongo", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public HealthChecker mongoHealthChecker(BeanFactory beanFactory, HealthMonitoringProperties properties) {
+    @ConditionalOnProperty(prefix = "app.health.mongodb", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public HealthChecker mongoHealthChecker(BeanFactory beanFactory, ValidatedHealthMonitoringProperties properties) {
         
-        HealthMonitoringProperties.MongoConfig mongoConfig = properties.getMongo();
+        ValidatedHealthMonitoringProperties.MongoConfig mongoConfig = properties.getMongo();
         
         try {
             // Resolve MongoTemplate bean
@@ -50,7 +50,7 @@ public class EnhancedMongoHealthAutoConfiguration {
             logger.info("Creating MongoDB health checker for component '{}' targeting database '{}'", 
                        componentName, mongoTemplate.getDb().getName());
             
-            return new MongoHealthChecker(componentName, mongoTemplate, mongoConfig);
+            return new SecureMongoHealthChecker(componentName, mongoTemplate, mongoConfig);
             
         } catch (Exception e) {
             logger.error("Failed to create MongoDB health checker", e);
@@ -61,7 +61,7 @@ public class EnhancedMongoHealthAutoConfiguration {
     /**
      * Resolves the MongoTemplate bean using configured name or type-based lookup.
      */
-    private MongoTemplate resolveMongoTemplateBean(BeanFactory beanFactory, HealthMonitoringProperties.MongoConfig config) {
+    private MongoTemplate resolveMongoTemplateBean(BeanFactory beanFactory, ValidatedHealthMonitoringProperties.MongoConfig config) {
         if (config.getMongoTemplateBeanName() != null && !config.getMongoTemplateBeanName().trim().isEmpty()) {
             logger.debug("Resolving MongoTemplate by bean name: {}", config.getMongoTemplateBeanName());
             return beanFactory.getBean(config.getMongoTemplateBeanName(), MongoTemplate.class);
@@ -74,7 +74,7 @@ public class EnhancedMongoHealthAutoConfiguration {
     /**
      * Determines an appropriate component name for the health checker.
      */
-    private String determineComponentName(MongoTemplate mongoTemplate, HealthMonitoringProperties.MongoConfig config) {
+    private String determineComponentName(MongoTemplate mongoTemplate, ValidatedHealthMonitoringProperties.MongoConfig config) {
         if (config.getMongoTemplateBeanName() != null && !config.getMongoTemplateBeanName().trim().isEmpty()) {
             return config.getMongoTemplateBeanName();
         }

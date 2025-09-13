@@ -1,6 +1,6 @@
 package com.example.health.service;
 
-import com.example.health.config.HealthMonitoringProperties;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
 import com.example.health.domain.HealthCheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +31,10 @@ public class StartupHealthReporter {
     
     private static final Logger logger = LoggerFactory.getLogger(StartupHealthReporter.class);
     
-    private final HealthCheckOrchestrator orchestrator;
-    private final HealthMonitoringProperties properties;
+    private final OptimizedHealthCheckOrchestrator orchestrator;
+    private final ValidatedHealthMonitoringProperties properties;
     
-    public StartupHealthReporter(HealthCheckOrchestrator orchestrator, HealthMonitoringProperties properties) {
+    public StartupHealthReporter(OptimizedHealthCheckOrchestrator orchestrator, ValidatedHealthMonitoringProperties properties) {
         this.orchestrator = Objects.requireNonNull(orchestrator, "Health check orchestrator cannot be null");
         this.properties = Objects.requireNonNull(properties, "Health monitoring properties cannot be null");
     }

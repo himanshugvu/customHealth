@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  */
 @AutoConfiguration
 @ConditionalOnClass(DataSource.class)
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class EnhancedDatabaseHealthAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(EnhancedDatabaseHealthAutoConfiguration.class);
@@ -36,7 +36,7 @@ public class EnhancedDatabaseHealthAutoConfiguration {
      */
     @Bean
     @ConditionalOnBean(DataSource.class)
-    @ConditionalOnProperty(prefix = "app.health.monitoring.database", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "app.health.db", name = "enabled", havingValue = "true", matchIfMissing = true)
     public HealthChecker databaseHealthChecker(BeanFactory beanFactory, HealthMonitoringProperties properties) {
         
         HealthMonitoringProperties.DatabaseConfig dbConfig = properties.getDatabase();

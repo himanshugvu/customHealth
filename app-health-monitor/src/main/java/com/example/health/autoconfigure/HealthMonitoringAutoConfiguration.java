@@ -1,9 +1,9 @@
 package com.example.health.autoconfigure;
 
 import com.example.health.actuator.EnterpriseHealthIndicator;
-import com.example.health.config.HealthMonitoringProperties;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
 import com.example.health.core.HealthChecker;
-import com.example.health.service.HealthCheckOrchestrator;
+import com.example.health.service.OptimizedHealthCheckOrchestrator;
 import com.example.health.service.StartupHealthReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,8 @@ import java.util.List;
  * @since 1.0.0
  */
 @AutoConfiguration
-@EnableConfigurationProperties(HealthMonitoringProperties.class)
-@ConditionalOnProperty(prefix = "app.health.monitoring", name = "enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties(ValidatedHealthMonitoringProperties.class)
+@ConditionalOnProperty(prefix = "app.health", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class HealthMonitoringAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(HealthMonitoringAutoConfiguration.class);
@@ -41,8 +41,8 @@ public class HealthMonitoringAutoConfiguration {
      * Creates the health check orchestrator that manages all health checkers.
      */
     @Bean
-    public HealthCheckOrchestrator healthCheckOrchestrator(ObjectProvider<HealthChecker> healthCheckersProvider,
-                                                         HealthMonitoringProperties properties) {
+    public OptimizedHealthCheckOrchestrator healthCheckOrchestrator(ObjectProvider<HealthChecker> healthCheckersProvider,
+                                                         ValidatedHealthMonitoringProperties properties) {
         List<HealthChecker> healthCheckers = healthCheckersProvider.orderedStream().toList();
         
         logger.info("Initializing Health Check Orchestrator with {} health checkers", healthCheckers.size());
@@ -52,14 +52,14 @@ public class HealthMonitoringAutoConfiguration {
                            checker.getComponentName(), checker.getComponentType(), checker.isEnabled()));
         }
         
-        return new HealthCheckOrchestrator(healthCheckers, properties.getDefaultTimeout());
+        return new OptimizedHealthCheckOrchestrator(healthCheckers, properties.getDefaultTimeout(), 4);
     }
     
     /**
      * Creates the main enterprise health indicator for Spring Boot Actuator integration.
      */
     @Bean(name = "enterpriseHealth")
-    public EnterpriseHealthIndicator enterpriseHealthIndicator(HealthCheckOrchestrator orchestrator) {
+    public EnterpriseHealthIndicator enterpriseHealthIndicator(OptimizedHealthCheckOrchestrator orchestrator) {
         logger.info("Creating Enterprise Health Indicator for Spring Boot Actuator integration");
         return new EnterpriseHealthIndicator("enterprise-health-monitor", orchestrator);
     }
@@ -68,8 +68,8 @@ public class HealthMonitoringAutoConfiguration {
      * Creates the startup health reporter for application startup logging.
      */
     @Bean
-    public StartupHealthReporter startupHealthReporter(HealthCheckOrchestrator orchestrator,
-                                                     HealthMonitoringProperties properties) {
+    public StartupHealthReporter startupHealthReporter(OptimizedHealthCheckOrchestrator orchestrator,
+                                                     ValidatedHealthMonitoringProperties properties) {
         return new StartupHealthReporter(orchestrator, properties);
     }
     
@@ -78,7 +78,7 @@ public class HealthMonitoringAutoConfiguration {
      */
     @Bean
     @Order(1000) // Run after other initialization
-    @ConditionalOnProperty(prefix = "app.health.monitoring", name = "startupLogging", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "app.health", name = "startupLogging", havingValue = "true", matchIfMissing = true)
     public ApplicationRunner startupHealthCheckRunner(StartupHealthReporter reporter) {
         logger.info("Enabling startup health check reporting");
         return args -> reporter.reportStartupHealth();

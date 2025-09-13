@@ -1,7 +1,7 @@
 package com.example.health.checkers;
 
-import com.example.health.config.HealthMonitoringProperties;
-import com.example.health.core.AbstractHealthChecker;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
+import com.example.health.core.RobustAbstractHealthChecker;
 import com.example.health.domain.HealthCheckResult;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeClusterResult;
@@ -25,18 +25,18 @@ import java.util.concurrent.TimeUnit;
  * @author Health Monitoring Library
  * @since 1.0.0
  */
-public class KafkaHealthChecker extends AbstractHealthChecker {
+public class KafkaHealthChecker extends RobustAbstractHealthChecker {
     
     private static final String COMPONENT_TYPE = "kafka";
     
     private final AdminClient adminClient;
     
-    public KafkaHealthChecker(String componentName, AdminClient adminClient, HealthMonitoringProperties.KafkaConfig config) {
+    public KafkaHealthChecker(String componentName, AdminClient adminClient, ValidatedHealthMonitoringProperties.KafkaConfig config) {
         super(componentName, COMPONENT_TYPE, determineTimeout(config));
         this.adminClient = Objects.requireNonNull(adminClient, "AdminClient cannot be null");
     }
     
-    private static Duration determineTimeout(HealthMonitoringProperties.KafkaConfig config) {
+    private static Duration determineTimeout(ValidatedHealthMonitoringProperties.KafkaConfig config) {
         return config.getTimeout() != null ? config.getTimeout() : Duration.ofSeconds(5);
     }
     

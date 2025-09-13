@@ -1,7 +1,7 @@
 package com.example.health.checkers;
 
-import com.example.health.config.HealthMonitoringProperties;
-import com.example.health.core.AbstractHealthChecker;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
+import com.example.health.core.RobustAbstractHealthChecker;
 import com.example.health.domain.HealthCheckResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ import java.util.Objects;
  * @author Health Monitoring Library
  * @since 1.0.0
  */
-public class ExternalServiceHealthChecker extends AbstractHealthChecker {
+public class ExternalServiceHealthChecker extends RobustAbstractHealthChecker {
     
     private static final String COMPONENT_TYPE = "external";
     
@@ -33,14 +33,14 @@ public class ExternalServiceHealthChecker extends AbstractHealthChecker {
     private final int maxRetries;
     
     public ExternalServiceHealthChecker(String serviceName, RestClient restClient, URI serviceUri, 
-                                      HealthMonitoringProperties.ExternalServiceConfig config) {
+                                      ValidatedHealthMonitoringProperties.ExternalServiceConfig config) {
         super(serviceName, COMPONENT_TYPE, determineTimeout(config));
         this.restClient = Objects.requireNonNull(restClient, "RestClient cannot be null");
         this.serviceUri = Objects.requireNonNull(serviceUri, "Service URI cannot be null");
         this.maxRetries = config.getRetries();
     }
     
-    private static Duration determineTimeout(HealthMonitoringProperties.ExternalServiceConfig config) {
+    private static Duration determineTimeout(ValidatedHealthMonitoringProperties.ExternalServiceConfig config) {
         return config.getTimeout() != null ? config.getTimeout() : Duration.ofSeconds(5);
     }
     

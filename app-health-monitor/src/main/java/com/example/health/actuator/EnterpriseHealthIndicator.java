@@ -1,7 +1,7 @@
 package com.example.health.actuator;
 
 import com.example.health.domain.HealthCheckResult;
-import com.example.health.service.HealthCheckOrchestrator;
+import com.example.health.service.OptimizedHealthCheckOrchestrator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 
@@ -27,10 +27,10 @@ import java.util.Objects;
  */
 public class EnterpriseHealthIndicator implements HealthIndicator {
     
-    private final HealthCheckOrchestrator orchestrator;
+    private final OptimizedHealthCheckOrchestrator orchestrator;
     private final String indicatorName;
     
-    public EnterpriseHealthIndicator(String indicatorName, HealthCheckOrchestrator orchestrator) {
+    public EnterpriseHealthIndicator(String indicatorName, OptimizedHealthCheckOrchestrator orchestrator) {
         this.indicatorName = Objects.requireNonNull(indicatorName, "Indicator name cannot be null");
         this.orchestrator = Objects.requireNonNull(orchestrator, "Health check orchestrator cannot be null");
     }

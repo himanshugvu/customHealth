@@ -1,7 +1,7 @@
 package com.example.health.checkers;
 
-import com.example.health.config.HealthMonitoringProperties;
-import com.example.health.core.AbstractHealthChecker;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
+import com.example.health.core.RobustAbstractHealthChecker;
 import com.example.health.domain.HealthCheckResult;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author Health Monitoring Library
  * @since 1.0.0
  */
-public class SecureMongoHealthChecker extends AbstractHealthChecker {
+public class SecureMongoHealthChecker extends RobustAbstractHealthChecker {
     
     private static final String COMPONENT_TYPE = "mongodb";
     
@@ -41,12 +41,12 @@ public class SecureMongoHealthChecker extends AbstractHealthChecker {
     private final MongoTemplate mongoTemplate;
     
     public SecureMongoHealthChecker(String componentName, MongoTemplate mongoTemplate, 
-                                  HealthMonitoringProperties.MongoConfig config) {
+                                  ValidatedHealthMonitoringProperties.MongoConfig config) {
         super(componentName, COMPONENT_TYPE, determineTimeout(config));
         this.mongoTemplate = Objects.requireNonNull(mongoTemplate, "MongoTemplate cannot be null");
     }
     
-    private static Duration determineTimeout(HealthMonitoringProperties.MongoConfig config) {
+    private static Duration determineTimeout(ValidatedHealthMonitoringProperties.MongoConfig config) {
         Duration timeout = config.getTimeout();
         if (timeout == null) {
             return Duration.ofSeconds(3);

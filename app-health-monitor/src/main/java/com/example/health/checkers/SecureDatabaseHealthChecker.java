@@ -1,7 +1,7 @@
 package com.example.health.checkers;
 
-import com.example.health.config.HealthMonitoringProperties;
-import com.example.health.core.AbstractHealthChecker;
+import com.example.health.config.ValidatedHealthMonitoringProperties;
+import com.example.health.core.RobustAbstractHealthChecker;
 import com.example.health.domain.HealthCheckResult;
 
 import javax.sql.DataSource;
@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @author Health Monitoring Library
  * @since 1.0.0
  */
-public class SecureDatabaseHealthChecker extends AbstractHealthChecker {
+public class SecureDatabaseHealthChecker extends RobustAbstractHealthChecker {
     
     private static final String COMPONENT_TYPE = "database";
     
@@ -45,13 +45,13 @@ public class SecureDatabaseHealthChecker extends AbstractHealthChecker {
     private final String validationQuery;
     
     public SecureDatabaseHealthChecker(String componentName, DataSource dataSource, 
-                                     HealthMonitoringProperties.DatabaseConfig config) {
+                                     ValidatedHealthMonitoringProperties.DatabaseConfig config) {
         super(componentName, COMPONENT_TYPE, determineTimeout(config));
         this.dataSource = Objects.requireNonNull(dataSource, "DataSource cannot be null");
         this.validationQuery = sanitizeValidationQuery(config.getValidationQuery());
     }
     
-    private static Duration determineTimeout(HealthMonitoringProperties.DatabaseConfig config) {
+    private static Duration determineTimeout(ValidatedHealthMonitoringProperties.DatabaseConfig config) {
         Duration timeout = config.getTimeout();
         if (timeout == null) {
             return Duration.ofSeconds(3);

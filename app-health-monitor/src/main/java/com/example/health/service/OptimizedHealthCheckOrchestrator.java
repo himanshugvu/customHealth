@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -317,6 +318,20 @@ public class OptimizedHealthCheckOrchestrator implements AutoCloseable {
             circuitBreakerStates.size(),
             getOpenCircuitBreakersCount()
         );
+    }
+    
+    /**
+     * Returns cache statistics as a map for health indicator.
+     */
+    public Map<String, Object> getCacheStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("cacheSize", resultCache.size());
+        stats.put("cacheHits", cacheHits);
+        stats.put("cacheEvictions", cacheEvictions);
+        stats.put("totalExecutions", totalExecutions);
+        stats.put("circuitBreakers", circuitBreakerStates.size());
+        stats.put("openCircuitBreakers", getOpenCircuitBreakersCount());
+        return stats;
     }
     
     /**

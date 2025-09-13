@@ -34,7 +34,7 @@ import java.util.StringJoiner;
  * @author Health Monitoring Library
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "app.health.monitoring")
+@ConfigurationProperties(prefix = "app.health")
 @Validated
 public class ValidatedHealthMonitoringProperties {
     
