@@ -1,4 +1,5 @@
-com.example.health.AppHealthAutoConfiguration
-com.example.health.autoconfigure.DatabaseHealthIndicatorAutoConfiguration
-com.example.health.autoconfigure.MongoHealthIndicatorAutoConfiguration
-com.example.health.autoconfigure.KafkaHealthIndicatorAutoConfiguration
+com.example.health.autoconfigure.HealthMonitoringAutoConfiguration
+com.example.health.autoconfigure.EnhancedDatabaseHealthAutoConfiguration
+com.example.health.autoconfigure.EnhancedMongoHealthAutoConfiguration
+com.example.health.autoconfigure.EnhancedKafkaHealthAutoConfiguration
+com.example.health.autoconfigure.EnhancedExternalServiceHealthAutoConfiguration

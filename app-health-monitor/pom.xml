@@ -85,6 +85,14 @@
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- Validation API for configuration properties -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

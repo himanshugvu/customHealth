@@ -1,0 +1,36 @@
+# Enterprise Health Monitoring Configuration
+app:
+  health:
+    monitoring:
+      enabled: true
+      startupLogging: true
+      defaultTimeout: PT5S
+      
+      database:
+        enabled: true
+        validationQuery: "SELECT 1"
+        timeout: PT3S
+        # dataSourceBeanName: primaryDataSource  # Optional: specify custom bean name
+      
+      mongo:
+        enabled: true
+        timeout: PT3S
+        # mongoTemplateBeanName: mongoTemplate  # Optional: specify custom bean name
+      
+      kafka:
+        enabled: true
+        adminClientBeanName: "kafkaAdminClient"
+        timeout: PT5S
+      
+      externalServices:
+        - name: "httpbin-service"
+          enabled: true
+          restClientBeanName: "myRestClient"
+          urlBeanName: "externalServiceUrl"
+          timeout: PT5S
+          retries: 2
+      
+      logging:
+        structured: true
+        includeStackTrace: false
+        maxErrorMessageLength: 200

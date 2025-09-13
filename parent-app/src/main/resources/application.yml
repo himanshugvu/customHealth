@@ -22,7 +22,9 @@ spring:
       uri: ${MONGODB_URI:mongodb://localhost:27017/demo}
 
   config:
-    import: optional:classpath:app-health.yml
+    import: 
+      - optional:classpath:app-health.yml
+      - optional:classpath:enterprise-health.yml
 
 # Enable detailed logging to see our structured logging output
 logging:
