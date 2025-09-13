@@ -6,12 +6,9 @@ import com.example.health.core.HealthChecker;
 import com.example.health.registry.HealthCheckRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -19,13 +16,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
  * Direct registration MongoDB health checker auto-configuration.
  * 
  * This configuration directly registers MongoDB health checkers into the HealthCheckRegistry
- * instead of creating beans that are discovered by ObjectProvider.
+ * in its constructor, eliminating the need for any beans or InitializingBean patterns.
  * 
  * Features:
- * - Direct registration into HealthCheckRegistry
- * - No intermediate bean creation
- * - Centralized health checker management
- * - Proper ordering with registry lifecycle
+ * - Constructor-based direct registration
+ * - No bean creation whatsoever
+ * - Immediate registration on instantiation
+ * - Cleaner lifecycle management
  * 
  * @author Health Monitoring Library
  * @since 1.0.0
@@ -38,106 +35,74 @@ public class DirectRegistrationMongoHealthAutoConfiguration {
     
     private static final Logger logger = LoggerFactory.getLogger(DirectRegistrationMongoHealthAutoConfiguration.class);
     
-    public DirectRegistrationMongoHealthAutoConfiguration() {
-        logger.info("DirectRegistrationMongoHealthAutoConfiguration instantiated - will register directly into HealthCheckRegistry");
-    }
-    
     /**
-     * Creates a registrar that adds MongoDB health checker directly to the registry.
+     * Constructor that immediately registers MongoDB health checker into the registry.
+     * No beans, no InitializingBean - just direct registration.
      */
-    @Bean
-    @ConditionalOnBean({MongoTemplate.class, HealthCheckRegistry.class})
-    @ConditionalOnProperty(prefix = "app.health.mongodb", name = "enabled", 
-                          havingValue = "true", matchIfMissing = true)
-    public MongoHealthCheckerRegistrar mongoHealthCheckerRegistrar(
+    public DirectRegistrationMongoHealthAutoConfiguration(
             HealthCheckRegistry registry,
             MongoTemplate mongoTemplate,
             ValidatedHealthMonitoringProperties properties) {
         
-        logger.info("Creating MongoDB health checker registrar for direct registry registration");
-        return new MongoHealthCheckerRegistrar(registry, mongoTemplate, properties);
+        logger.info("DirectRegistrationMongoHealthAutoConfiguration instantiated - registering MongoDB health checker directly");
+        
+        try {
+            // Defensive programming: Validate inputs
+            if (registry == null) {
+                throw new IllegalStateException("HealthCheckRegistry is required but was null");
+            }
+            if (mongoTemplate == null) {
+                throw new IllegalStateException("MongoTemplate is required but was null");
+            }
+            if (properties == null) {
+                throw new IllegalStateException("Health monitoring properties are required but were null");
+            }
+            
+            ValidatedHealthMonitoringProperties.MongoConfig mongoConfig = properties.getMongo();
+            if (mongoConfig == null) {
+                logger.warn("MongoDB configuration is null, using defaults");
+                mongoConfig = new ValidatedHealthMonitoringProperties.MongoConfig();
+            }
+            
+            if (!mongoConfig.isEnabled()) {
+                logger.info("MongoDB health checking is disabled, skipping registration");
+                return;
+            }
+            
+            // Determine component name with fallback
+            String componentName = determineComponentName(mongoTemplate, mongoConfig);
+            
+            logger.info("Creating secure MongoDB health checker for component '{}'", componentName);
+            
+            // Create and register the health checker immediately
+            HealthChecker mongoHealthChecker = new SecureMongoHealthChecker(componentName, mongoTemplate, mongoConfig);
+            registry.register(mongoHealthChecker);
+            
+            logger.info("✅ Successfully registered MongoDB health checker '{}' directly in constructor", componentName);
+            
+        } catch (Exception e) {
+            logger.error("❌ Failed to register MongoDB health checker in constructor", e);
+            throw new IllegalStateException("MongoDB health checker registration failed", e);
+        }
     }
     
     /**
-     * MongoDB health checker registrar that directly registers into the registry.
-     * This approach eliminates the need for ObjectProvider discovery patterns.
+     * Determines an appropriate component name for the health checker.
      */
-    public static class MongoHealthCheckerRegistrar implements InitializingBean {
-        
-        private static final Logger logger = LoggerFactory.getLogger(MongoHealthCheckerRegistrar.class);
-        
-        private final HealthCheckRegistry registry;
-        private final MongoTemplate mongoTemplate;
-        private final ValidatedHealthMonitoringProperties properties;
-        
-        public MongoHealthCheckerRegistrar(HealthCheckRegistry registry,
-                                         MongoTemplate mongoTemplate,
-                                         ValidatedHealthMonitoringProperties properties) {
-            this.registry = registry;
-            this.mongoTemplate = mongoTemplate;
-            this.properties = properties;
+    private String determineComponentName(MongoTemplate mongoTemplate, 
+                                        ValidatedHealthMonitoringProperties.MongoConfig config) {
+        // Use configured bean name if available
+        if (config.getMongoTemplateBeanName() != null && !config.getMongoTemplateBeanName().trim().isEmpty()) {
+            return config.getMongoTemplateBeanName();
         }
         
-        @Override
-        public void afterPropertiesSet() {
-            logger.info("Registering MongoDB health checker directly into HealthCheckRegistry");
-            
-            try {
-                // Defensive programming: Validate inputs
-                if (registry == null) {
-                    throw new IllegalStateException("HealthCheckRegistry is required but was null");
-                }
-                if (mongoTemplate == null) {
-                    throw new IllegalStateException("MongoTemplate is required but was null");
-                }
-                if (properties == null) {
-                    throw new IllegalStateException("Health monitoring properties are required but were null");
-                }
-                
-                ValidatedHealthMonitoringProperties.MongoConfig mongoConfig = properties.getMongo();
-                if (mongoConfig == null) {
-                    logger.warn("MongoDB configuration is null, using defaults");
-                    mongoConfig = new ValidatedHealthMonitoringProperties.MongoConfig();
-                }
-                
-                // Determine component name with fallback
-                String componentName = determineComponentName(mongoTemplate, mongoConfig);
-                
-                logger.info("Creating secure MongoDB health checker for component '{}' targeting database '{}'", 
-                           componentName, mongoTemplate.getDb().getName());
-                
-                // Create the health checker
-                HealthChecker mongoHealthChecker = new SecureMongoHealthChecker(componentName, mongoTemplate, mongoConfig);
-                
-                // Register directly into the registry
-                registry.register(mongoHealthChecker);
-                
-                logger.info("✅ Successfully registered MongoDB health checker '{}' directly into HealthCheckRegistry", componentName);
-                
-            } catch (Exception e) {
-                logger.error("❌ Failed to register MongoDB health checker into registry", e);
-                throw new IllegalStateException("MongoDB health checker registration failed", e);
-            }
-        }
-        
-        /**
-         * Determines an appropriate component name for the health checker.
-         */
-        private String determineComponentName(MongoTemplate mongoTemplate, 
-                                            ValidatedHealthMonitoringProperties.MongoConfig config) {
-            // Use configured bean name if available
-            if (config.getMongoTemplateBeanName() != null && !config.getMongoTemplateBeanName().trim().isEmpty()) {
-                return config.getMongoTemplateBeanName();
-            }
-            
-            // Use database name as component identifier
-            try {
-                String dbName = mongoTemplate.getDb().getName();
-                return "mongodb-" + dbName;
-            } catch (Exception e) {
-                logger.debug("Could not determine database name for component naming: {}", e.getMessage());
-                return "mongodb-primary";
-            }
+        // Use database name as component identifier
+        try {
+            String dbName = mongoTemplate.getDb().getName();
+            return "mongodb-" + dbName;
+        } catch (Exception e) {
+            logger.debug("Could not determine database name for component naming: {}", e.getMessage());
+            return "mongodb-primary";
         }
     }
 }
