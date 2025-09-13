@@ -3,9 +3,8 @@ package com.example.health;
 import com.example.health.config.AppHealthProperties;
 import com.example.health.health.DatabaseHealthIndicator;
 import com.example.health.health.ExternalServiceHealthIndicator;
-import com.example.health.health.KafkaHealthIndicator;
 import com.example.health.health.MongoHealthIndicator;
-import com.example.health.health.ComprehensiveHealthIndicator;
+import com.example.health.health.KafkaHealthIndicator;
 import com.example.health.util.LatencyLogger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -14,15 +13,12 @@ import org.springframework.boot.actuate.health.CompositeHealthContributor;
 import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.client.RestClient;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
-import javax.sql.DataSource;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,29 +58,10 @@ public class AppHealthAutoConfiguration {
     public HealthContributor customHealthContributor(
             @org.springframework.beans.factory.annotation.Qualifier("internalComposite") 
             CompositeHealthContributor internalComposite) {
-        return new ComprehensiveHealthIndicator(internalComposite);
+        return internalComposite;
     }
 
-    @Bean
-    @ConditionalOnProperty(prefix = "app.health.db", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ConditionalOnBean(DataSource.class)
-    public DatabaseHealthIndicator databaseHealthIndicator(DataSource dataSource, AppHealthProperties properties) {
-        return new DatabaseHealthIndicator(dataSource, properties);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "app.health.mongodb", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ConditionalOnBean(MongoTemplate.class)
-    public MongoHealthIndicator mongoHealthIndicator(MongoTemplate mongoTemplate, AppHealthProperties properties) {
-        return new MongoHealthIndicator(mongoTemplate, properties);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "app.health.kafka", name = "enabled", havingValue = "true")
-    public KafkaHealthIndicator kafkaHealthIndicator(BeanFactory beanFactory, AppHealthProperties properties) {
-        return new KafkaHealthIndicator(beanFactory, properties);
-    }
-
+    // External Service Health Indicators - always available since RestClient is part of spring-web
     @Bean
     public java.util.List<ExternalServiceHealthIndicator> externalServiceHealthIndicators(
             BeanFactory beanFactory, 

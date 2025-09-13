@@ -1,6 +1,6 @@
 package com.example.parentapp.controller;
 
-import org.apache.kafka.clients.admin.AdminClient;
+// import org.apache.kafka.clients.admin.AdminClient; // Commented out for testing without Kafka
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,8 +20,8 @@ public class DemoController {
     @Autowired(required = false)
     private MongoTemplate mongoTemplate;
 
-    @Autowired(required = false)
-    private AdminClient kafkaAdminClient;
+    // @Autowired(required = false)
+    // private AdminClient kafkaAdminClient; // Commented out for testing without Kafka
 
     @Autowired
     private RestClient myRestClient;
@@ -53,23 +53,12 @@ public class DemoController {
 
     @GetMapping("/kafka/info")
     public Map<String, Object> kafkaStatus() {
-        try {
-            if (kafkaAdminClient == null) {
-                return Map.of("status", "Kafka not configured", "available", false);
-            }
-            
-            var nodes = kafkaAdminClient.describeCluster().nodes().get();
-            return Map.of(
-                "status", "Kafka connection successful",
-                "available", true,
-                "nodeCount", nodes.size()
-            );
-        } catch (Exception e) {
-            return Map.of(
-                "status", "Kafka connection failed: " + e.getMessage(),
-                "available", false
-            );
-        }
+        // Kafka functionality disabled for testing without dependencies
+        return Map.of(
+            "status", "Kafka not available - dependencies removed for testing", 
+            "available", false,
+            "reason", "No Kafka dependencies in classpath"
+        );
     }
 
     @GetMapping("/external/ping")

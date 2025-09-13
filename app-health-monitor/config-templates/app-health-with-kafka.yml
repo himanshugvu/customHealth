@@ -1,0 +1,47 @@
+# Configuration template for applications WITH Kafka
+# Copy this to your application's resources/app-health.yml
+
+app:
+  health:
+    enabled: true
+    startupLog: true
+    
+    # Database health check (enabled by default)
+    db:
+      enabled: true
+      validationQuery: "SELECT 1"
+    
+    # MongoDB health check (enabled if MongoTemplate available)
+    mongodb:
+      enabled: true
+    
+    # Kafka health check - ENABLED for Kafka applications  
+    kafka:
+      enabled: true
+      adminClientBean: kafkaAdminClient  # Must match your AdminClient bean name
+    
+    # External services configuration
+    external:
+      services:
+        - name: userService
+          enabled: true
+          restClientBean: myRestClient
+          urlBean: userServiceUrl
+        # Add more external services as needed
+        # - name: paymentService
+        #   enabled: true
+        #   restClientBean: paymentRestClient
+        #   urlBean: paymentServiceUrl
+
+# Kafka configuration
+kafka:
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+# External service URLs  
+external:
+  services:
+    user:
+      url: ${USER_SERVICE_URL:http://localhost:8080/api/users}
+    # payment:
+    #   url: ${PAYMENT_SERVICE_URL:http://localhost:8081/api/payments}

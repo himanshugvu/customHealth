@@ -11,6 +11,7 @@ public class AppHealthProperties {
     private boolean enabled = false;
     private boolean startupLog = true;
     private DatabaseConfig db = new DatabaseConfig();
+    private MongoConfig mongodb = new MongoConfig();
     private KafkaConfig kafka = new KafkaConfig();
     private ExternalConfig external = new ExternalConfig();
 
@@ -42,6 +43,14 @@ public class AppHealthProperties {
         this.db = db;
     }
 
+    public MongoConfig getMongodb() {
+        return mongodb;
+    }
+
+    public void setMongodb(MongoConfig mongodb) {
+        this.mongodb = mongodb;
+    }
+
     public KafkaConfig getKafka() {
         return kafka;
     }
@@ -61,6 +70,7 @@ public class AppHealthProperties {
     public static class DatabaseConfig {
         private boolean enabled = true;
         private String validationQuery = "SELECT 1";
+        private String dataSourceBean;
 
         public boolean isEnabled() {
             return enabled;
@@ -76,6 +86,35 @@ public class AppHealthProperties {
 
         public void setValidationQuery(String validationQuery) {
             this.validationQuery = validationQuery;
+        }
+
+        public String getDataSourceBean() {
+            return dataSourceBean;
+        }
+
+        public void setDataSourceBean(String dataSourceBean) {
+            this.dataSourceBean = dataSourceBean;
+        }
+    }
+
+    public static class MongoConfig {
+        private boolean enabled = true;
+        private String mongoTemplateBean;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getMongoTemplateBean() {
+            return mongoTemplateBean;
+        }
+
+        public void setMongoTemplateBean(String mongoTemplateBean) {
+            this.mongoTemplateBean = mongoTemplateBean;
         }
     }
 

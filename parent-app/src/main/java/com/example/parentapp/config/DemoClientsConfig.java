@@ -5,7 +5,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.kafka.clients.admin.AdminClient;
+// import org.apache.kafka.clients.admin.AdminClient; // Commented out for testing without Kafka
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -48,9 +48,12 @@ public class DemoClientsConfig {
                 .build();
     }
 
+    // Kafka AdminClient bean commented out to test library without Kafka dependencies
+    /*
     @Bean(name = "kafkaAdminClient")
     @ConditionalOnProperty(name = "app.health.kafka.enabled", havingValue = "true")
     public AdminClient adminClient(@Value("${kafka.bootstrap.servers:localhost:9092}") String bootstrapServers) {
         return AdminClient.create(Map.of("bootstrap.servers", bootstrapServers));
     }
+    */
 }

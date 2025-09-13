@@ -24,6 +24,15 @@ spring:
   config:
     import: optional:classpath:app-health.yml
 
+# Enable detailed logging to see our structured logging output
+logging:
+  level:
+    com.example.health: INFO
+    com.example.parentapp: INFO
+    root: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
 kafka:
   bootstrap:
     servers: ${KAFKA_BOOTSTRAP:localhost:9092}

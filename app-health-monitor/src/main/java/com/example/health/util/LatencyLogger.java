@@ -23,7 +23,8 @@ public class LatencyLogger {
             try {
                 logHealthContributor(contributor);
             } catch (Exception e) {
-                logger.warn("[AppHealth] Error during startup health check logging", e);
+                logger.warn("startup_check=true error=\"Failed to execute startup health check logging\" error_type=\"{}\" error_message=\"{}\"", 
+                           e.getClass().getSimpleName(), e.getMessage());
             }
         });
     }
@@ -57,15 +58,18 @@ public class LatencyLogger {
             Object latencyMs = health.getDetails().get("latencyMs");
             Object error = health.getDetails().get("error");
 
+            String componentName = name.isEmpty() ? "custom" : name;
+            
             if (error != null) {
-                logger.info("[AppHealth] {}: {} ({}) in {}ms", 
-                    name.isEmpty() ? "custom" : name, status, error, latencyMs);
+                logger.info("startup_check=true component=\"{}\" status={} latency_ms={} error=\"{}\"", 
+                    componentName, status, latencyMs, error);
             } else {
-                logger.info("[AppHealth] {}: {} in {}ms", 
-                    name.isEmpty() ? "custom" : name, status, latencyMs);
+                logger.info("startup_check=true component=\"{}\" status={} latency_ms={}", 
+                    componentName, status, latencyMs);
             }
         } catch (Exception e) {
-            logger.warn("[AppHealth] Error checking health for {}: {}", name, e.getMessage());
+            logger.warn("startup_check=true component=\"{}\" error=\"Failed to check health\" error_type=\"{}\" error_message=\"{}\"", 
+                       name, e.getClass().getSimpleName(), e.getMessage());
         }
     }
 }

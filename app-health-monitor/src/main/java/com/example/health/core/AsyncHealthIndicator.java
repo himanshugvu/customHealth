@@ -2,6 +2,8 @@ package com.example.health.core;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +16,8 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class AsyncHealthIndicator implements HealthIndicator {
 
+    private static final Logger logger = LoggerFactory.getLogger(AsyncHealthIndicator.class);
+    
     private final Duration timeout;
     private final String componentName;
 

@@ -4,9 +4,16 @@
       "Bash(docker-compose up:*)",
       "Bash(timeout:*)",
       "Bash(taskkill:*)",
-      "Bash(mvn:*)"
+      "Bash(mvn:*)",
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(docker logs:*)",
+      "WebSearch"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\c\\Users\\himan\\Project\\claudeAgent"
+    ]
   }
 }

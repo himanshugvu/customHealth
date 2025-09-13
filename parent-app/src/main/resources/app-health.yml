@@ -5,10 +5,12 @@ app:
     db:
       enabled: true
       validationQuery: "SELECT 1"
+      # dataSourceBean: dataSource  # Optional: specify bean name, otherwise uses type lookup
     mongodb:
       enabled: true
+      # mongoTemplateBean: mongoTemplate  # Optional: specify bean name, otherwise uses type lookup
     kafka:
-      enabled: true
+      enabled: true  # Test reflection-based approach
       adminClientBean: kafkaAdminClient
     external:
       services:

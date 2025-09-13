@@ -46,10 +46,13 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
         
+        <!-- Kafka dependency commented out to test library without Kafka -->
+        <!--
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
+        -->
         
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
